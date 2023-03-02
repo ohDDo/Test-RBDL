@@ -1,0 +1,12 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
+PROJECT(Test-cpp)
+
+find_package(Eigen3 REQUIRED HINTS ${Eigen3_HINT})
+include_directories(${EIGEN3_INCLUDE_DIRS})
+
+ADD_COMPILE_DEFINITIONS (URDF_RSC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/src/")
+find_package(RBDL COMPONENTS URDFREADER REQUIRED)
+include_directories(${RBDL_INCLIDE_DIR})
+
+add_executable(Test_RBDL Test-RBDL.cpp)
+target_link_libraries(Test_RBDL ${RBDL_LIBRARY} ${RBDL_URDFREADER_LIBRARY})
