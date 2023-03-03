@@ -38,30 +38,20 @@ void Test_DOF()
 
 }
 
-void Test_ForwardDynamics(Eigen::VectorXd newQ, Eigen::VectorXd newTau)
+void Test_ForwardDynamics()
 {
-    Q = newQ;
-    Tau = newTau;
-
-    std::cout << "size(Q, QDot, QDDot, Tau): ( " << Q.size() << ", " << QDot.size() << ", " << QDDot.size() << ", " << Tau.size() << ")" << std::endl;
-
-    std::cout << "desired:" << std::endl << "Q:" << std::endl << Q << std::endl << "QDot:" << std::endl << QDot << std::endl << "QDDot:" << std::endl << QDDot << std::endl;
-    std::cout << "Forward Dynamics with q, qdot, tau set to zero:" << std::endl;
     RigidBodyDynamics::ForwardDynamics(model, Q, QDot, Tau, QDDot);
 
-    std::cout << QDDot.transpose() << std::endl;
+    std::cout << "Forward Dynamics" << std::endl;
+    std::cout << "QDDot: "<< QDDot.transpose() << std::endl<< std::endl;
 }
 
 void Test_InverseDynamics()
 {
-    //double bar base code
-    Q << -30 * 3.141592 / 180, -2 * 30 * 3.141592 / 180, -(90 - 30) * 3.141592 / 180;
-    std::cout << "Use Inverse dynamics get desired Tau for zero qDDot in desired Q, QDot:" << std::endl;
-    std::cout << "desired:" << std::endl << "Q:" << std::endl << Q << std::endl << "QDot:" << std::endl << QDot << std::endl << "QDDot:" << std::endl << QDDot << std::endl;
-    std::cout << "Tau: " << std::endl << Tau << std::endl;
-    RigidBodyDynamics::InverseDynamics(model, Q, QDot, QDDot, Tau);
+    RigidBodyDynamics::InverseDynamics(model, Q, QDot, QDDot, Tau, NULL);
 
-    std::cout << Tau.transpose() << std::endl;
+    std::cout << "Inverse dynamics" << std::endl;
+    std::cout << "Tau :"<< Tau.transpose() << std::endl<< std::endl;
 }
 
 void Test_MassMatrix(Eigen::VectorXd Q)
@@ -69,27 +59,48 @@ void Test_MassMatrix(Eigen::VectorXd Q)
     Eigen::MatrixXd H;
     H = Eigen::MatrixXd(19,19);
     RigidBodyDynamics::CompositeRigidBodyAlgorithm(model, Q, H, true);
-    std::cout<<"Mass matrix :"<<std::endl<<H<<std::endl;
+    std::cout<<"Mass matrix :"<<std::endl<<H<<std::endl<< std::endl;
 }
 
 void fixedBaseExample()
 {
+    //multi-link example
     getModelFromURDF("camel_quad_planar/urdf/camel_quad_planar_stl.urdf",false);
     Test_DOF();
+    Q = Eigen::VectorXd(5);
+    QDot = Eigen::VectorXd(5);
+    QDDot = Eigen::VectorXd(5);
+    Tau = Eigen::VectorXd(5);
+    Q.setZero();
+    QDot.setZero();
+    QDDot.setZero();
+    Tau.setZero();
 }
 
 void floatingBaseExample()
 {
-    Q = Eigen::VectorXd(19);
-    Q.setZero();
-    Q[18] = 1;
+    //quadruped robot example
     getModelFromURDF("canine/urdf/canineV1.urdf",true);
     Test_DOF();
+    Q = Eigen::VectorXd(19);
+    QDot = Eigen::VectorXd(18);
+    QDDot = Eigen::VectorXd(18);
+    Tau = Eigen::VectorXd(18);
+    Q << -0.00966787, -2.22733e-05, 0.341271, 0, 0, 0, -0.000316542, 0.846003, -1.57948, 0.00246455, 0.821255, -1.53864, -0.000320557, 0.846237, -1.57953, -0.00247643, 0.821701, -1.53906, 1;
+//    Q.setZero();
+    QDot.setZero();
+    QDDot.setZero();
+    Tau.setZero();
+//    Q[18] = 1;
     Test_MassMatrix(Q);
+    Test_InverseDynamics();
+    Tau << 0 ,-1.30104e-17,      154.596 ,   -0.543163,      1.72995 ,-2.21334e-16   ,  0.971612    , 0.175192   , -0.174462,     0.973037 ,    0.170559  ,  -0.171324 ,    -1.51477 ,      1.2135,    -0.174427,    -0.973042,     0.170706, -0.171319;
+    Test_ForwardDynamics();
 }
 
 int main()
 {
+//    fixedBaseExample();
     floatingBaseExample();
     return 0;
 }
