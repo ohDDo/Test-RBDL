@@ -54,10 +54,11 @@ void Test_InverseDynamics()
     std::cout << "Tau :"<< Tau.transpose() << std::endl<< std::endl;
 }
 
-void Test_MassMatrix(Eigen::VectorXd Q)
+void Test_MassMatrix()
 {
     Eigen::MatrixXd H;
-    H = Eigen::MatrixXd(19,19);
+    H = Eigen::MatrixXd(18,18);
+    H.setZero();
     RigidBodyDynamics::CompositeRigidBodyAlgorithm(model, Q, H, true);
     std::cout<<"Mass matrix :"<<std::endl<<H<<std::endl<< std::endl;
 }
@@ -92,7 +93,7 @@ void floatingBaseExample()
     QDDot.setZero();
     Tau.setZero();
 //    Q[18] = 1;
-    Test_MassMatrix(Q);
+    Test_MassMatrix();
     Test_InverseDynamics();
     Tau << 0 ,-1.30104e-17,      154.596 ,   -0.543163,      1.72995 ,-2.21334e-16   ,  0.971612    , 0.175192   , -0.174462,     0.973037 ,    0.170559  ,  -0.171324 ,    -1.51477 ,      1.2135,    -0.174427,    -0.973042,     0.170706, -0.171319;
     Test_ForwardDynamics();
